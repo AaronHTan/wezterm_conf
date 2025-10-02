@@ -9,6 +9,7 @@ M.wallpapers = {
 	"/Users/aarontan/wallpapers/国风山水.png",
 	"/Users/aarontan/wallpapers/wallpaper_terminal.png",
 	"/Users/aarontan/wallpapers/wallpaper_anime.png",
+	"/Users/aarontan/wallpapers/抽烟美女.png",
 }
 
 -- Manual wallpaper override index (nil means use time-based)
