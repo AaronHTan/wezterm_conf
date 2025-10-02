@@ -11,22 +11,60 @@ M.wallpapers = {
 	"/Users/aarontan/wallpapers/wallpaper_anime.png",
 }
 
+-- Manual wallpaper override index (nil means use time-based)
+M.manual_wallpaper_index = nil
+
 -- Detect system appearance (light or dark mode)
 function M.get_appearance()
+	-- Try wezterm.gui first (preferred method)
 	if wezterm.gui then
-		return wezterm.gui.get_appearance()
+		local appearance = wezterm.gui.get_appearance()
+		if appearance then
+			return appearance
+		end
 	end
+
+	-- Fallback: check macOS system settings directly
+	local handle = io.popen("defaults read -g AppleInterfaceStyle 2>/dev/null")
+	if handle then
+		local result = handle:read("*a")
+		handle:close()
+		if result and result:match("Dark") then
+			return "Dark"
+		end
+	end
+
 	return "Light"
 end
 
 function M.is_dark_mode()
-	return M.get_appearance():find("Dark")
+	local appearance = M.get_appearance()
+	return appearance and appearance:find("Dark") ~= nil
 end
 
--- Get wallpaper based on time (changes every 5 minutes)
+-- Get wallpaper based on time (changes every 5 minutes) or manual override
 function M.get_wallpaper()
-	local wallpaper_index = (math.floor(os.time() / 360) % #M.wallpapers) + 1
+	local wallpaper_index
+	if M.manual_wallpaper_index then
+		wallpaper_index = M.manual_wallpaper_index
+	else
+		wallpaper_index = (math.floor(os.time() / 360) % #M.wallpapers) + 1
+	end
 	return M.wallpapers[wallpaper_index]
+end
+
+-- Cycle to next wallpaper manually
+function M.cycle_wallpaper()
+	if M.manual_wallpaper_index == nil then
+		-- Start from current time-based index
+		M.manual_wallpaper_index = (math.floor(os.time() / 360) % #M.wallpapers) + 1
+	end
+	M.manual_wallpaper_index = (M.manual_wallpaper_index % #M.wallpapers) + 1
+end
+
+-- Reset to automatic time-based cycling
+function M.reset_wallpaper_auto()
+	M.manual_wallpaper_index = nil
 end
 
 -- Get overlay color based on system appearance

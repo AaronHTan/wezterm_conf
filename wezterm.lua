@@ -39,6 +39,34 @@ config.colors = {
 -- Window background opacity to ensure background shows through titlebar
 config.window_background_opacity = 1.0
 
+-- Key bindings
+config.keys = {
+	-- CMD+J to cycle wallpaper manually
+	{
+		key = "j",
+		mods = "CMD",
+		action = wezterm.action_callback(function(window, pane)
+			background.cycle_wallpaper()
+			-- Force immediate update
+			local overrides = window:get_config_overrides() or {}
+			overrides.background = background.get_background()
+			window:set_config_overrides(overrides)
+		end),
+	},
+	-- CMD+SHIFT+J to reset to automatic wallpaper cycling
+	{
+		key = "J",
+		mods = "CMD|SHIFT",
+		action = wezterm.action_callback(function(window, pane)
+			background.reset_wallpaper_auto()
+			-- Force immediate update
+			local overrides = window:get_config_overrides() or {}
+			overrides.background = background.get_background()
+			window:set_config_overrides(overrides)
+		end),
+	},
+}
+
 -- Auto-reload configuration when appearance changes or wallpaper cycles
 -- The update-status event fires automatically ~1x per second by Wezterm
 -- This checks current time to determine wallpaper and system appearance
