@@ -2,18 +2,19 @@ local wezterm = require("wezterm")
 
 local M = {}
 
--- List of wallpapers
-M.wallpapers = {
-	"/Users/aarontan/wallpapers/眼镜美女.png",
-	"/Users/aarontan/wallpapers/柯南.png",
-	"/Users/aarontan/wallpapers/国风山水.png",
-	"/Users/aarontan/wallpapers/wallpaper_terminal.png",
-	"/Users/aarontan/wallpapers/wallpaper_anime.png",
-	"/Users/aarontan/wallpapers/抽烟美女.png",
-}
-
 -- Manual wallpaper override index (nil means use time-based)
 M.manual_wallpaper_index = nil
+
+-- Cached wallpapers list
+local wallpapers_cache = nil
+
+-- Get list of wallpapers (lazy-loaded)
+function M.get_wallpapers()
+	if not wallpapers_cache then
+		wallpapers_cache = wezterm.glob("/Users/aarontan/wallpapers/*")
+	end
+	return wallpapers_cache
+end
 
 -- Detect system appearance (light or dark mode)
 function M.get_appearance()
@@ -45,22 +46,24 @@ end
 
 -- Get wallpaper based on time (changes every 5 minutes) or manual override
 function M.get_wallpaper()
+	local wallpapers = M.get_wallpapers()
 	local wallpaper_index
 	if M.manual_wallpaper_index then
 		wallpaper_index = M.manual_wallpaper_index
 	else
-		wallpaper_index = (math.floor(os.time() / 360) % #M.wallpapers) + 1
+		wallpaper_index = (math.floor(os.time() / 360) % #wallpapers) + 1
 	end
-	return M.wallpapers[wallpaper_index]
+	return wallpapers[wallpaper_index]
 end
 
 -- Cycle to next wallpaper manually
 function M.cycle_wallpaper()
+	local wallpapers = M.get_wallpapers()
 	if M.manual_wallpaper_index == nil then
 		-- Start from current time-based index
-		M.manual_wallpaper_index = (math.floor(os.time() / 360) % #M.wallpapers) + 1
+		M.manual_wallpaper_index = (math.floor(os.time() / 360) % #wallpapers) + 1
 	end
-	M.manual_wallpaper_index = (M.manual_wallpaper_index % #M.wallpapers) + 1
+	M.manual_wallpaper_index = (M.manual_wallpaper_index % #wallpapers) + 1
 end
 
 -- Reset to automatic time-based cycling

@@ -6,10 +6,11 @@ local background = require("background")
 local config = wezterm.config_builder()
 
 -- Your personal settings
-config.initial_cols = 120
-config.initial_rows = 28
+config.initial_cols = 240
+config.initial_rows = 68
 config.font_size = 10
 config.font = wezterm.font("JetBrains Mono")
+config.use_dead_keys = false
 
 -- Set color scheme based on system appearance
 config.color_scheme = background.get_color_scheme()
@@ -41,11 +42,11 @@ config.window_background_opacity = 1.0
 
 -- Key bindings
 config.keys = {
-	-- CMD+J to cycle wallpaper manually
+	-- Return keybinds- CMD+J to cycle wallpaper manually
 	{
 		key = "j",
 		mods = "CMD",
-		action = wezterm.action_callback(function(window, pane)
+		action = wezterm.action_callback(function(window)
 			background.cycle_wallpaper()
 			-- Force immediate update
 			local overrides = window:get_config_overrides() or {}
@@ -55,9 +56,9 @@ config.keys = {
 	},
 	-- CMD+SHIFT+J to reset to automatic wallpaper cycling
 	{
-		key = "J",
+		key = "j",
 		mods = "CMD|SHIFT",
-		action = wezterm.action_callback(function(window, pane)
+		action = wezterm.action_callback(function(window)
 			background.reset_wallpaper_auto()
 			-- Force immediate update
 			local overrides = window:get_config_overrides() or {}
@@ -66,11 +67,10 @@ config.keys = {
 		end),
 	},
 }
-
 -- Auto-reload configuration when appearance changes or wallpaper cycles
 -- The update-status event fires automatically ~1x per second by Wezterm
 -- This checks current time to determine wallpaper and system appearance
-wezterm.on("update-status", function(window, pane)
+wezterm.on("update-status", function(window)
 	local overrides = window:get_config_overrides() or {}
 
 	-- Update color scheme based on current appearance
